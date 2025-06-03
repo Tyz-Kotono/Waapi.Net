@@ -8,24 +8,17 @@ namespace AK.Wwise.Waapi.SubSystem
     {
         private AK.Wwise.Waapi.JsonClient client;
         public AK.Wwise.Waapi.JsonClient Client => client;
-
-        public ClientSubSystem()
-        {
-           
-        }
         
-        public void Initialization()
+        
+        public async Task Initialize(JsonClient jsonClient)
         {
-            client = new AK.Wwise.Waapi.JsonClient();
+            this.client = jsonClient;
+            SubscribeDisconnected(()=> System.Console.WriteLine("Log Temp We lost connection! "));
+            await ConnectWwise();
         }
         
         // Try to connect to running instance of Wwise on localhost, default port
-        public  async Task<bool> ConnectWwise()
-        {
-            await Client.Connect();
-            return true;
-        }
-    
+        public async Task ConnectWwise() => await Client.Connect();
         public void SubscribeDisconnected(Wamp.DisconnectedHandler handler)
             => Client.Disconnected += handler;
 

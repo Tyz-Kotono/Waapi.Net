@@ -1,80 +1,90 @@
 ﻿/******************************************************************************
- 
+
 The content of this file includes portions of the AUDIOKINETIC Wwise Technology
 released in source code form as part of the SDK installer package.
- 
+
 Commercial License Usage
- 
+
 Licensees holding valid commercial licenses to the AUDIOKINETIC Wwise Technology
-may use this file in accordance with the end user license agreement provided 
+may use this file in accordance with the end user license agreement provided
 with the software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Audiokinetic Inc.
- 
+
 Apache License Usage
- 
-Alternatively, this file may be used under the Apache License, Version 2.0 (the 
-"Apache License"); you may not use this file except in compliance with the 
-Apache License. You may obtain a copy of the Apache License at 
+
+Alternatively, this file may be used under the Apache License, Version 2.0 (the
+"Apache License"); you may not use this file except in compliance with the
+Apache License. You may obtain a copy of the Apache License at
 http://www.apache.org/licenses/LICENSE-2.0.
- 
+
 Unless required by applicable law or agreed to in writing, software distributed
 under the Apache License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 OR CONDITIONS OF ANY KIND, either express or implied. See the Apache License for
 the specific language governing permissions and limitations under the License.
- 
+
   Copyright (c) 2025 Audiokinetic Inc.
- 
+
 *******************************************************************************/
  
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
- 
+using WappiNet.Function;
+
+
 namespace AK.Wwise.Waapi
 {
+    using SubSystem;
+
     class Program
     {
-        
-      
+        private static AK.Wwise.Waapi.JsonClient client;
         static void Main(string[] args)
         {
-
-             //CustomLink().Wait();
-             _Main().Wait();
+            
+            BeginPlay().Wait();
+            // _Main().Wait();
         }
+        
 
-
-        static async Task CustomLink()
+        static async Task BeginPlay()
         {
-            var client = new AK.Wwise.Waapi.JsonClient();
-            await client.Connect();  // 内部自动连接并设置子协议
-            Console.WriteLine("Connected!");
+            try
+            {
+               
+                client = new AK.Wwise.Waapi.JsonClient();
+                
+                
+                await ClientSubSystem.Self.Initialize(client);
+                JObject info = await client.GetWwiseInfo();
+                // System.Console.WriteLine(info);
+                
+                
+                var testObj = await client.ObjectCreate(
+                    new
+                    {
+                        name = "WaapiObject",
+                        parent = @"\Actor-Mixer Hierarchy\Default Work Unit",
+                        type = "ActorMixer",
+                        onNameConflict = "rename"
+                    });
+                // System.Console.WriteLine(testObj["id"]);
+                System.Console.WriteLine(testObj);
 
-            JObject info = await client.Call(ak.wwise.core.getInfo, null, null);
-            Console.WriteLine(info);
-
-            var testObj = await client.Call(
-                ak.wwise.core.@object.create,
-                new
-                {
-                    name = "WaapiObject",
-                    parent = @"\Actor-Mixer Hierarchy\Default Work Unit",
-                    type = "ActorMixer",
-                    onNameConflict = "rename"
-                }, null);
-
-            Console.WriteLine(testObj["id"]);
-
-            await client.Close();
+            }
+            catch (Exception e)
+            {
+                System.Console.Error.WriteLine(e.Message);
+            }
         }
         
         static async Task _Main()
         {
             try
             {
-                AK.Wwise.Waapi.JsonClient client = new AK.Wwise.Waapi.JsonClient();
- 
+                // AK.Wwise.Waapi.JsonClient client = new AK.Wwise.Waapi.JsonClient();
+                client = new AK.Wwise.Waapi.JsonClient();
                 // Try to connect to running instance of Wwise on localhost, default port
                 await client.Connect();
  
