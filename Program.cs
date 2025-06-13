@@ -30,13 +30,14 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
-using WappiNet.Function;
+using AK.WaapiNet.ObjectModel;
 
 
 namespace AK.Wwise.Waapi
 {
     using SubSystem;
-
+    using WappiNet.Function;
+    using WappiNet.Utilities;
     class Program
     {
         private static AK.Wwise.Waapi.JsonClient client;
@@ -65,12 +66,22 @@ namespace AK.Wwise.Waapi
                     new
                     {
                         name = "WaapiObject",
-                        parent = @"\Actor-Mixer Hierarchy\Default Work Unit",
-                        type = "ActorMixer",
+                        parent = WwiseUtilities.ActorMixer,
+                        type = ActorMixerType.ActorMixer,
                         onNameConflict = "rename"
                     });
                 // System.Console.WriteLine(testObj["id"]);
                 System.Console.WriteLine(testObj);
+                
+    
+                // var createArgs = new JObject
+                // {
+                //     ["parent"] = GameSyncType.GameParameter.GetDefaultParentPath(),
+                //     ["type"] = GameSyncType.GameParameter.ToWaapiString(),
+                //     ["name"] = "PlayerHealth"
+                // };
+                // await client.ObjectCreateGameSync(createArgs);
+
 
             }
             catch (Exception e)
